@@ -5,7 +5,6 @@ using AuthService.Domain.Entities;
 using AuthService.Domain.Interfaces;
 using AuthService.Infrastructure.Db;
 using AuthService.Infrastructure.Security;
-using Microsoft.AspNet.Identity;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;

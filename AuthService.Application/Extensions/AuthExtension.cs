@@ -1,7 +1,9 @@
 ﻿using AuthService.Application.DTO;
 using AuthService.Application.Interfaces;
 using AuthService.Application.Services;
+using AuthService.Application.Settings;
 using AuthService.Domain.Entities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -30,8 +32,9 @@ public static class AuthExtension
         };
     }
 
-    public static IServiceCollection AddApplicationService(this IServiceCollection services)
+    public static IServiceCollection AddApplicationService(this IServiceCollection services, IConfiguration config)
     {
+        services.Configure<TokenSettings>(config.GetSection("Jwt"));
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IUserService, UserService>();
         return services;

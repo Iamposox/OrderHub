@@ -2,7 +2,7 @@
 using AuthService.Domain.Interfaces;
 using AuthService.Infrastructure.Db;
 using AuthService.Infrastructure.Security;
-using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +22,7 @@ public static class DependencyInjection
             b => b.MigrationsAssembly("AuthService.Infrastructure")));
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
-        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<IApplicationPasswordHasher, PasswordHasherAdapter>();
         return services;
     }

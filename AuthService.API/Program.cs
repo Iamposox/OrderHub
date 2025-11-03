@@ -1,3 +1,4 @@
+using AuthService.API.Extensions;
 using AuthService.Application.Extensions;
 using AuthService.Infrastructure;
 
@@ -10,7 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastucture(builder.Configuration);
-builder.Services.AddApplicationService();
+builder.Services.AddApplicationService(builder.Configuration);
 
 var app = builder.Build();
 
@@ -19,6 +20,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.ApplyMigrations();
 }
 
 app.UseHttpsRedirection();

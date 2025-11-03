@@ -1,8 +1,10 @@
 ﻿using AuthService.Application.DTO;
 using AuthService.Application.Interfaces;
+using AuthService.Application.Settings;
 using AuthService.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -15,11 +17,11 @@ using System.Threading.Tasks;
 namespace AuthService.Application.Services;
 public class TokenService : ITokenService
 {
-    private readonly IConfiguration _config;
+    private readonly TokenSettings _tokenSettings;
     private readonly ILogger<TokenService> _logger;
-    public TokenService(IConfiguration config, ILogger<TokenService> logger)
+    public TokenService(IOptions<TokenSettings> tokenSettings, ILogger<TokenService> logger)
     {
-        _config = config;
+        _tokenSettings = tokenSettings.Value;
         _logger = logger;
     }
 
@@ -27,9 +29,9 @@ public class TokenService : ITokenService
     {
         try
         {
-            var jwtKey = _config["Jwt:Key"];
-            var issuer = _config["Jwt:Issuer"];
-            var audience = _config["Jwt:Audience"];
+            var jwtKey = _tokenSettings.Key;
+            var issuer = _tokenSettings.Issuer;
+            var audience = _tokenSettings.Audience;
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
