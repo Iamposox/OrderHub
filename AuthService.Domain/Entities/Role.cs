@@ -10,5 +10,5 @@ public class Role
     public Guid Id { get; set; }
     public string Rolename { get; set; } = default!;
     public string? RoleDescription { get; set; }
-    public ICollection<User> Users { get; set;}
+    public ICollection<User> Users { get; set; } = [];
 }

@@ -41,7 +41,7 @@ namespace AuthService.Infrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_Roles_Rolename_Unique");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("AuthService.Domain.Entities.User", b =>
@@ -76,7 +76,7 @@ namespace AuthService.Infrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_Users_Username_Qnique");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("AuthService.Domain.Entities.User", b =>
