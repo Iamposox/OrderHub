@@ -1,4 +1,5 @@
-﻿using AuthService.Domain.Interfaces;
+﻿using AuthService.Domain.Entities;
+using AuthService.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -9,8 +10,8 @@ using System.Threading.Tasks;
 namespace AuthService.Infrastructure.Security;
 public class PasswordHasherAdapter : IApplicationPasswordHasher
 {
-    private readonly IPasswordHasher<object> _hasher;
-    public PasswordHasherAdapter(IPasswordHasher<object> hasher) => _hasher = hasher;
+    private readonly IPasswordHasher<User> _hasher;
+    public PasswordHasherAdapter(IPasswordHasher<User> hasher) => _hasher = hasher;
     public string HashPassword(string password)
     {
         if(string.IsNullOrWhiteSpace(password))

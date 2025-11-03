@@ -26,5 +26,5 @@ public class RoleRepository : IRoleRepository
     public async Task<Role?> GetByNameAsync(string name)
         => await _context.Roles
         .AsNoTracking()
-        .FirstOrDefaultAsync(u => u.RoleName == name);
+        .FirstOrDefaultAsync(u => u.Rolename == name);
 }

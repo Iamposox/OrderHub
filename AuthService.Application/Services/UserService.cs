@@ -55,7 +55,7 @@ public class UserService : IUserService
                 throw new InvalidOperationException($"Пользователь '{userDto.Username}' уже существует.");
             var role = await _unitOfWork.Roles.GetByNameAsync(userDto.Rolename);
             if (role is null)
-                role = await _unitOfWork.Roles.AddAsync(new Role { RoleName = userDto.Rolename });
+                role = await _unitOfWork.Roles.AddAsync(new Role { Rolename = userDto.Rolename });
             var hashedPassword = _passwordHasher.HashPassword(userDto.Password);
             var user = userDto.ToEntity(hashedPassword, role);
             await _unitOfWork.Users.AddAsync(user);

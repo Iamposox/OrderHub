@@ -38,7 +38,7 @@ public class TokenServiceTest : IAsyncLifetime
             Role = new Role
             {
                 Id = Guid.NewGuid(),
-                RoleName = "Test"
+                Rolename = "Test"
             }
         };
         var result = _tokenService.GenerateTokens(user);

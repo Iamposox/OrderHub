@@ -12,5 +12,6 @@ public class User
     public string PasswordHash { get; set; } = default!;
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiry {  get; set; }
+    public Guid RoleId { get; set; }
     public Role Role { get; set; }
 }

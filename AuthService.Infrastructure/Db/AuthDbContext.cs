@@ -1,4 +1,5 @@
 ﻿using AuthService.Domain.Entities;
+using AuthService.Infrastructure.Configurations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
@@ -19,4 +20,11 @@ public class AuthDbContext : DbContext
     public async Task<IDbContextTransaction> BeginTransactionAsync() => await Database.BeginTransactionAsync();
     public async Task CommitTransactionAsync() => await Database.CommitTransactionAsync();
     public async Task RollbackTransactionAsync() => await Database.RollbackTransactionAsync();
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfiguration(new UserConfiguration());
+        modelBuilder.ApplyConfiguration(new RoleConfiguration());
+    }
 }

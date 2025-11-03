@@ -34,16 +34,16 @@ public class UserRepositoryTest : IAsyncLifetime
     [Fact]
     public async Task AddUser()
     {
-        var user = new User { Username = "Danila", PasswordHash = "testhash", Role = new Role { RoleName = "TEst" } };
+        var user = new User { Username = "Danila", PasswordHash = "testhash", Role = new Role { Rolename = "TEst" } };
         await _userRepository.AddAsync(user);
         await _context.SaveChangesAsync();
         var userFromDb = await _context.Users.FirstOrDefaultAsync(x => x.Username == "Danila");
         userFromDb.Should().NotBeNull();
         userFromDb.Id.Should().NotBeEmpty();
         userFromDb.PasswordHash.Should().Be("testhash");
-        var roleFromDb = await _context.Roles.FirstOrDefaultAsync(x => x.RoleName == "TEst");
+        var roleFromDb = await _context.Roles.FirstOrDefaultAsync(x => x.Rolename == "TEst");
         roleFromDb.Should().NotBeNull();
-        roleFromDb.RoleName.Should().Be("TEst");
+        roleFromDb.Rolename.Should().Be("TEst");
     }
     public async Task DisposeAsync()
     {

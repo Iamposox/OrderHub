@@ -20,8 +20,7 @@ public static class DependencyInjection
         services.AddDbContext<AuthDbContext>(options =>
             options.UseNpgsql(config.GetConnectionString("AuthConnection"),
             b => b.MigrationsAssembly("AuthService.Infrastructure")));
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<IApplicationPasswordHasher, PasswordHasherAdapter>();
         return services;

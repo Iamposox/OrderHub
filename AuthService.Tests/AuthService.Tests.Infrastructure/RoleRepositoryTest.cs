@@ -34,11 +34,11 @@ public class RoleRepositoryTest : IAsyncLifetime
     [Fact]
     public async Task AddRole()
     {
-        var role2 = new Role { RoleName = "Admin" };
+        var role2 = new Role { Rolename = "Admin" };
         await _roleRepository.AddAsync(role2);
         var trackedRole = await _context.Roles.FindAsync(role2.Id);
         trackedRole.Should().NotBeNull();
-        trackedRole.RoleName.Should().Be("Admin");
+        trackedRole.Rolename.Should().Be("Admin");
     }
     public async Task DisposeAsync()
     {
