@@ -3,8 +3,6 @@ using AuthService.Application.Extensions;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Entities;
 using AuthService.Domain.Interfaces;
-using AuthService.Infrastructure.Db;
-using AuthService.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -17,37 +15,33 @@ public class UserService : IUserService
 {
     private readonly ILogger<UserService> _logger;
     private readonly IApplicationPasswordHasher _passwordHasher;
-    private readonly IUserRepository _userRepo;
-    private readonly IRoleRepository _roleRepo;
-    private readonly AuthDbContext _context;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ITokenService _tokenService;
     public UserService(
         ILogger<UserService> logger,
         IApplicationPasswordHasher passwordHasher,
-        AuthDbContext context,
-        IUserRepository userRepo,
-        IRoleRepository roleRepo)
+        IUnitOfWork unitOfWork,
+        ITokenService tokenService)
     {
         _logger = logger;
         _passwordHasher = passwordHasher;
-        _context = context;
-        _userRepo = userRepo;
-        _roleRepo = roleRepo;
+        _unitOfWork = unitOfWork;
+        _tokenService = tokenService;
     }
     private async Task<T> ExecuteInTransactionAsync<T>(Func<Task<T>> func) 
     {
         _logger.LogInformation("Start transaction");
-        await using var tx = await _context.BeginTransactionAsync();
+        await _unitOfWork.BeginTransactionAsync();
         try
         {
             var result = await func();
-            await _context.SaveChangesAsync();
-            await tx.CommitAsync();
+            await _unitOfWork.CommitTransactionAsync();
             _logger.LogInformation($"Executed transaction {result}");
             return result;
         }
         catch (Exception ex)
         {
-            await tx.RollbackAsync();
+            await _unitOfWork.RollbackTransactionAsync();
             _logger.LogError($"Error transaction {ex.Message}");
             throw;
         }
@@ -56,27 +50,27 @@ public class UserService : IUserService
     {
         return await ExecuteInTransactionAsync(async () =>
         {
-            var existingUser = await _userRepo.GetByNameAsync(userDto.Username);
+            var existingUser = await _unitOfWork.Users.GetByNameAsync(userDto.Username);
             if (existingUser is not null)
                 throw new InvalidOperationException($"Пользователь '{userDto.Username}' уже существует.");
-            var role = await _roleRepo.GetByNameAsync(userDto.Rolename);
+            var role = await _unitOfWork.Roles.GetByNameAsync(userDto.Rolename);
             if (role is null)
-                role = await _roleRepo.AddAsync(new Role { RoleName = userDto.Rolename });
+                role = await _unitOfWork.Roles.AddAsync(new Role { RoleName = userDto.Rolename });
             var hashedPassword = _passwordHasher.HashPassword(userDto.Password);
             var user = userDto.ToEntity(hashedPassword, role);
-            await _userRepo.AddAsync(user);
+            await _unitOfWork.Users.AddAsync(user);
             return userDto;
         });
     }
 
-    public async Task<User?> LoginUserAsync(UserLoginDto userDto)
+    public async Task<TokenPair?> LoginUserAsync(UserLoginDto userDto)
     {
-        var user = await _userRepo.GetByNameAsync(userDto.Username);
+        var user = await _unitOfWork.Users.GetByNameAsync(userDto.Username);
         if (user is null || !_passwordHasher.VerifyPassword(userDto.Password, user.PasswordHash))
         {
             return null;
         }
-        return user;
+        return await GenerateAndUpdate(user);
     }
     public async Task<bool> UpdateTokenByUserAsync(User user, TokenPair tokens)
     {
@@ -84,18 +78,32 @@ public class UserService : IUserService
         {
             user.RefreshToken = tokens.RefreshToken;
             user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-            await _userRepo.UpdateAsync(user);
+            await _unitOfWork.Users.UpdateAsync(user);
             return true;
         });
     }
 
-    public async Task<User?> GetUserByRefreshTokenAsync(string refreshToken) 
+    public async Task<TokenPair?> GetUserByRefreshTokenAsync(string refreshToken) 
     {
-        var user = await _userRepo.GetByRefreshTokenAsync(refreshToken);
-        if (user is null)
+        var user = await _unitOfWork.Users.GetByRefreshTokenAsync(refreshToken);
+        if (user is null || user.RefreshTokenExpiry < DateTime.UtcNow)
         {
             return null;
         }
-        return user;
+        return await GenerateAndUpdate(user);
+    }
+    private async Task<TokenPair> GenerateAndUpdate(User user)
+    {
+        _logger.LogInformation($"Генерация токена и обновление пользователя {user.Username}");
+        var tokens = _tokenService.GenerateTokens(user);
+        var result = await UpdateTokenByUserAsync(user, tokens);
+        if (result)
+            return new TokenPair
+            {
+                AccessToken = tokens.AccessToken,
+                RefreshToken = tokens.RefreshToken
+            };
+        else
+            throw new Exception("Неизведанное");
     }
 }

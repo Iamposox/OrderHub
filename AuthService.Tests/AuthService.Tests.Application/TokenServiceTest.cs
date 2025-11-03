@@ -44,5 +44,6 @@ public class TokenServiceTest : IAsyncLifetime
         var result = _tokenService.GenerateTokens(user);
 
         result.Should().NotBeNull();
+        
     }
 }

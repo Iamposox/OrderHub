@@ -17,4 +17,6 @@ public class AuthDbContext : DbContext
     public DbSet<Role> Roles => Set<Role>();
 
     public async Task<IDbContextTransaction> BeginTransactionAsync() => await Database.BeginTransactionAsync();
+    public async Task CommitTransactionAsync() => await Database.CommitTransactionAsync();
+    public async Task RollbackTransactionAsync() => await Database.RollbackTransactionAsync();
 }
