@@ -28,7 +28,7 @@ public static class AuthExtension
             Id = Guid.NewGuid(),
             Username = dto.Username,
             PasswordHash = passwordHash,
-            Role = role
+            RoleId = role.Id
         };
     }
 
